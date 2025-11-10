@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"gitflow/internals"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/dinesh00509/GitEase/internals"
 )
 
 func main() {
