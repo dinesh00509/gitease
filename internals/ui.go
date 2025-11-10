@@ -90,6 +90,12 @@ func (m model) runCurrentStep() (tea.Model, tea.Cmd) {
 	case 3:
 		m.output += RunGit("push")
 		m.output += "Pushed to remote branch successfully."
+		m.output += "\nAll steps completed. Exiting GitFlow..."
+		m.steps[m.cursor].done = true
+
+		return m, tea.Tick(time.Second*2, func(time.Time) tea.Msg {
+			return tea.QuitMsg{}
+		})
 	}
 
 	if m.cursor != 2 {
