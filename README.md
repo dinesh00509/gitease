@@ -7,7 +7,7 @@ It turns everyday Git commands — like staging, committing, and pushing — int
 #### Option 1 — Install with Go
 If you have Go installed, you can grab GitEase directly with:
 
-go install github.com/dinesh00509/GitEase@latest
+go install github.com/dinesh00509/gitease@latest
 
 Once installed, run it:
 
@@ -17,7 +17,7 @@ gitease
 
 Clone the repo and build it manually:
 
-git clone https://github.com/dinesh00509/GitEase.git
+git clone https://github.com/dinesh00509/gitease.git
 cd GitEase
 go build -o gitease
 sudo mv gitease /usr/local/bin/
