@@ -9,6 +9,12 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && (os.Args[1] == "-h" || os.Args[1] == "--help") {
+		fmt.Println("GitEase - Interactive Git Assistant")
+		fmt.Println("Usage: gitease")
+		fmt.Println("Navigate and manage Git tasks interactively in your terminal.")
+		os.Exit(0)
+	}
 	p := tea.NewProgram(internals.IntialModel())
 
 	if err := p.Start(); err != nil {
