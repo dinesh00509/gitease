@@ -11,13 +11,27 @@ import (
 )
 
 var (
-	titleStyle      = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#00FFFF")).Padding(0, 1)
-	stepDoneStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF00"))
-	stepCursorStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD700")).Bold(true)
-	outputStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("#87CEFA")).MarginTop(1)
-	successStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#32CD32")).Bold(true)
-	errorStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF5555"))
-	divider         = lipgloss.NewStyle().Foreground(lipgloss.Color("#555555")).Render(strings.Repeat("─", 30))
+	//colors
+	green     = lipgloss.Color("#00FF00")
+	yellow    = lipgloss.Color("#FFD700")
+	red       = lipgloss.Color("#FF5555")
+	cyan      = lipgloss.Color("#00FFFF")
+	darkGray  = lipgloss.Color("#2E2E2E")
+	lightGray = lipgloss.Color("#A9A9A9")
+
+	titleBox = lipgloss.NewStyle().Bold(true).Foreground(cyan).Border(lipgloss.RoundedBorder()).BorderForeground(cyan).Padding(0, 2).Align(lipgloss.Center)
+
+	doneStyle   = lipgloss.NewStyle().Foreground(green)
+	cursorStyle = lipgloss.NewStyle().Foreground(yellow).Bold(true)
+	labelStyle  = lipgloss.NewStyle().Foreground(lightGray)
+
+	outputBox = lipgloss.NewStyle().Border(lipgloss.NormalBorder()).BorderForeground(lightGray).Padding(1, 2).Foreground(green)
+
+	successStyle = lipgloss.NewStyle().Foreground(green).Bold(true)
+	errorStyle   = lipgloss.NewStyle().Foreground(red).Bold(true)
+	infoStyle    = lipgloss.NewStyle().Foreground(yellow)
+
+	footerStyle = lipgloss.NewStyle().Foreground(lightGray).MarginTop(1).Faint(true)
 )
 
 type step struct {
@@ -56,39 +70,49 @@ func (m model) Init() tea.Cmd { return textinput.Blink }
 // For viewing.
 func (m model) View() string {
 	var b strings.Builder
-	b.WriteString(titleStyle.Render("GitEase") + "\n")
-	b.WriteString(divider + "\n\n")
+
+	title := titleBox.Render("🧠 GIT FLOW ASSISTANT")
+	b.WriteString(title + "\n\n")
 
 	for i, s := range m.steps {
-		var cursor = " "
+		cursor := "  "
 		if m.cursor == i {
-			cursor = stepCursorStyle.Render("->")
+			cursor = cursorStyle.Render("➤")
 		}
+
 		status := "[ ]"
 		if s.done {
-			status = stepDoneStyle.Render("[✔]")
+			status = doneStyle.Render("[✔]")
+		} else {
+			status = labelStyle.Render(status)
 		}
 
-		line := fmt.Sprintf("%s %s %s\n", cursor, status, s.label)
+		label := labelStyle.Render(s.label)
+		line := fmt.Sprintf("%s %s %s\n", cursor, status, label)
 		b.WriteString(line)
 	}
-	b.WriteString("\n" + divider + "\n")
+
+	b.WriteString("\n" + lipgloss.NewStyle().
+		Foreground(lightGray).
+		Render(strings.Repeat("─", 40)) + "\n")
 
 	if m.commiting {
-
-		b.WriteString(stepCursorStyle.Render("Type your commit message and press Enter (ESC to cancel):") + "\n")
-		b.WriteString(m.textInput.View())
+		msg := infoStyle.Render("✏️  Type your commit message and press Enter (ESC to cancel):")
+		b.WriteString(msg + "\n")
+		b.WriteString(outputBox.Render(m.textInput.View()))
 	} else {
 		if strings.Contains(m.output, "Error") {
-			b.WriteString(errorStyle.Render(m.output))
+			b.WriteString(outputBox.Foreground(red).Render(m.output))
 		} else if strings.Contains(m.output, "completed") {
-			b.WriteString(successStyle.Render(m.output))
+			b.WriteString(outputBox.Foreground(green).Render(m.output))
 		} else {
-			b.WriteString(outputStyle.Render(m.output))
+			b.WriteString(outputBox.Foreground(lightGray).Render(m.output))
 		}
 	}
-	b.WriteString("\n" + divider + "\n")
-	b.WriteString(lipgloss.NewStyle().Faint(true).Render("Use ↑/↓ to navigate, Enter to run, q to quit.\n"))
+
+	b.WriteString("\n" + lipgloss.NewStyle().
+		Render(strings.Repeat("─", 40)) + "\n")
+	b.WriteString(footerStyle.Render("↑↓ Navigate   ⏎ Run   q Quit"))
 
 	return b.String()
 }
