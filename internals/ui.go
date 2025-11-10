@@ -89,6 +89,7 @@ func (m model) runCurrentStep() (tea.Model, tea.Cmd) {
 
 	case 3:
 		m.output += RunGit("push")
+		m.output += "Pushed to remote branch successfully."
 	}
 
 	if m.cursor != 2 {
