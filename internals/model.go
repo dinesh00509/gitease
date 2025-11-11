@@ -17,6 +17,8 @@ type Model struct {
 	TextInput  textinput.Model
 	BranchMode bool
 	NewBranch  bool
+	PullBranch bool
+	PullFromOtherBranch bool
 }
 
 func InitialModel() Model {
@@ -34,6 +36,8 @@ func InitialModel() Model {
 			{"Push to remote", false},
 			{"Create new branch", false},
 			{"Switch to another branch", false},
+			{"Pull from current branch", false},
+			{"Pull from other branch", false},
 		},
 		TextInput: ti,
 	}

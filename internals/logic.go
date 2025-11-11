@@ -14,6 +14,7 @@ func (m Model) RunCurrentStep() (tea.Model, tea.Cmd) {
 	m.Output = fmt.Sprintf("Running: %s...\n", m.Steps[m.Cursor].Label)
 
 	switch m.Cursor {
+
 	case 0:
 		m.Output += RunGit("add", ".")
 		m.Output += "\nStaging completed successfully."
@@ -30,7 +31,7 @@ func (m Model) RunCurrentStep() (tea.Model, tea.Cmd) {
 
 	case 3:
 		m.Output += RunGit("push")
-		m.Output += "\n🚀 Push completed successfully.\nAll steps done — exiting..."
+		m.Output += "\nPush completed successfully.\nAll steps done — exiting..."
 		m.Steps[m.Cursor].Done = true
 		return m, tea.Tick(time.Second*2, func(time.Time) tea.Msg { return tea.QuitMsg{} })
 
@@ -47,9 +48,21 @@ func (m Model) RunCurrentStep() (tea.Model, tea.Cmd) {
 		m.TextInput.SetValue("")
 		m.TextInput.Focus()
 		m.Output = ""
+
+	case 6:
+		m.PullBranch = true
+		m.TextInput.SetValue("")
+		m.TextInput.Focus()
+		m.Output = ""
+
+	case 7:
+		m.PullFromOtherBranch = true
+		m.TextInput.SetValue("")
+		m.TextInput.Focus()
+		m.Output = ""
 	}
 
-	if m.Cursor != 2 && m.Cursor != 4 && m.Cursor != 5 {
+	if m.Cursor != 2 && m.Cursor != 4 && m.Cursor != 5 && m.Cursor != 6 && m.Cursor != 7 {
 		m.Steps[m.Cursor].Done = true
 	}
 
@@ -58,7 +71,6 @@ func (m Model) RunCurrentStep() (tea.Model, tea.Cmd) {
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-
 	// Commit message input handling
 	if m.Committing {
 		switch msg := msg.(type) {
@@ -109,6 +121,32 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "esc":
 				m.BranchMode = false
 				m.Output = "Branch action cancelled."
+				return m, nil
+			}
+		}
+		m.TextInput, cmd = m.TextInput.Update(msg)
+		return m, cmd
+	}
+
+	if m.PullBranch {
+		switch msg := msg.(type) {
+		case tea.KeyMsg:
+			switch msg.String() {
+			case "enter":
+				if m.PullFromOtherBranch {
+					m.Output = RunGit("pull", "origin", m.TextInput.Value())
+					m.Output += "\nPull completed successfully."
+					m.Steps[m.Cursor].Done = true
+					return m, nil
+				} else {
+					m.Output = RunGit("pull")
+					m.Output += "\nPull completed successfully."
+					m.Steps[m.Cursor].Done = true
+					return m, nil
+				}
+			case "esc":
+				m.PullBranch = false
+				m.Output = "Pull action cancelled."
 				return m, nil
 			}
 		}
