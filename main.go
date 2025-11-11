@@ -26,6 +26,17 @@ func main() {
 			fmt.Println("  --help, -h      Show this help message")
 			os.Exit(0)
 		}
+		if arg == "--run" || arg == "-r" {
+			if len(os.Args) < 3 {
+				fmt.Println("Error: Missing argument for --run")
+				fmt.Println("Usage: gitease --run <command>")
+				os.Exit(1)
+			}
+			command := os.Args[2]
+			output := internals.RunGit(command)
+			fmt.Println(output)
+			os.Exit(0)
+		}
 	}
 
 	p := tea.NewProgram(internals.InitialModel())
