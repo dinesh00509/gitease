@@ -7,29 +7,36 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	titleStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#00FFFF")).
-			Background(lipgloss.Color("#1E1E1E")).
-			Padding(0, 2).
-			MarginBottom(1).
-			Underline(true)
+const asciiArt = `         _               _        _            _            _                  _            _       
+        /\ \            /\ \     /\ \         /\ \         / /\               / /\         /\ \     
+       /  \ \           \ \ \    \_\ \       /  \ \       / /  \             / /  \       /  \ \    
+      / /\ \_\          /\ \_\   /\__ \     / /\ \ \     / / /\ \           / / /\ \__   / /\ \ \   
+     / / /\/_/         / /\/_/  / /_ \ \   / / /\ \_\   / / /\ \ \         / / /\ \___\ / / /\ \_\  
+    / / / ______      / / /    / / /\ \ \ / /_/_ \/_/  / / /  \ \ \        \ \ \ \/___// /_/_ \/_/  
+   / / / /\_____\    / / /    / / /  \/_// /____/\    / / /___/ /\ \        \ \ \     / /____/\     
+  / / /  \/____ /   / / /    / / /      / /\____\/   / / /_____/ /\ \   _    \ \ \   / /\____\/     
+ / / /_____/ / /___/ / /__  / / /      / / /______  / /_________/\ \ \ /_/\__/ / /  / / /______     
+/ / /______\/ //\__\/_/___\/_/ /      / / /_______\/ / /_       __\ \_\\ \/___/ /  / / /_______\    
+\/___________/ \/_________/\_\/       \/__________/\_\___\     /____/_/ \_____\/   \/__________/    `
 
-	subtleDivider = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#444444")).
-			Render(strings.Repeat("─", 50))
+var (
+	asciiArtStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FFFF")).Bold(true)
+
+	// titleStyle = lipgloss.NewStyle().
+	// 		Bold(true).
+	// 		Foreground(lipgloss.Color("#00FFFF")).
+	// 		Background(lipgloss.Color("#1E1E1E")).
+	// 		Padding(0, 2).
+	// 		MarginBottom(1).
+	// 		Underline(true)
+
+	subtleDivider = lipgloss.NewStyle().Foreground(lipgloss.Color("#444444")).Render(strings.Repeat("─", 50))
 
 	stepPendingStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#808080"))
 	stepActiveStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFD700")).Bold(true)
 	stepDoneStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF7F")).Bold(true)
 
-	outputBox = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("#555555")).
-			Padding(1, 2).
-			MarginTop(1).
-			Width(65)
+	outputBox = lipgloss.NewStyle().Border(lipgloss.RoundedBorder()).BorderForeground(lipgloss.Color("#555555")).Padding(1, 2).MarginTop(1).Width(65)
 
 	successText = lipgloss.NewStyle().Foreground(lipgloss.Color("#00FF7F")).Bold(true)
 	errorText   = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF5555")).Bold(true)
@@ -37,10 +44,10 @@ var (
 )
 
 func (m Model) View() string {
-	var b strings.Builder
+	var content strings.Builder
 
-	b.WriteString(titleStyle.Render("GitEase – Git CLI Assistant") + "\n")
-	b.WriteString(subtleDivider + "\n\n")
+	content.WriteString(asciiArtStyle.Render(asciiArt) + "\n\n")
+	content.WriteString(subtleDivider + "\n\n")
 
 	for i, s := range m.Steps {
 		var line string
@@ -51,43 +58,52 @@ func (m Model) View() string {
 		} else {
 			line = stepPendingStyle.Render(fmt.Sprintf("• %s", s.Label))
 		}
-		b.WriteString(line + "\n")
+		content.WriteString(line + "\n")
 	}
-	b.WriteString("\n" + subtleDivider + "\n\n")
+	content.WriteString("\n" + subtleDivider + "\n\n")
 
 	if m.Committing {
-		b.WriteString(stepActiveStyle.Render("Commit Message:") + "\n")
-		b.WriteString(m.TextInput.View())
+		content.WriteString(stepActiveStyle.Render("Commit Message:") + "\n")
+		content.WriteString(m.TextInput.View())
 	} else if m.BranchMode {
 		if m.NewBranch {
-			b.WriteString(stepActiveStyle.Render("Enter new branch name:") + "\n")
+			content.WriteString(stepActiveStyle.Render("Enter new branch name:") + "\n")
 		} else {
-			b.WriteString(stepActiveStyle.Render("Enter branch name to switch:") + "\n")
+			content.WriteString(stepActiveStyle.Render("Enter branch name to switch:") + "\n")
 		}
-		b.WriteString(m.TextInput.View())
+		content.WriteString(m.TextInput.View())
 	} else if m.PullBranch {
 		if m.PullFromOtherBranch {
-			b.WriteString(stepActiveStyle.Render("Enter branch name to pull from:") + "\n")
-			b.WriteString(m.TextInput.View())
+			content.WriteString(stepActiveStyle.Render("Enter branch name to pull from:") + "\n")
+			content.WriteString(m.TextInput.View())
 		} else {
-			b.WriteString(stepActiveStyle.Render("Press Enter to pull from current branch") + "\n")
-			b.WriteString(m.TextInput.View())
+			content.WriteString(stepActiveStyle.Render("Press Enter to pull from current branch") + "\n")
+			content.WriteString(m.TextInput.View())
 		}
 	} else {
 		if m.Output == "" {
-			b.WriteString(outputBox.Render("Waiting for command..."))
+			content.WriteString(outputBox.Render("Waiting for command..."))
 		} else if strings.Contains(strings.ToLower(m.Output), "error") {
-			b.WriteString(outputBox.Render(errorText.Render(m.Output)))
+			content.WriteString(outputBox.Render(errorText.Render(m.Output)))
 		} else if strings.Contains(strings.ToLower(m.Output), "completed") ||
 			strings.Contains(strings.ToLower(m.Output), "success") {
-			b.WriteString(outputBox.Render(successText.Render(m.Output)))
+			content.WriteString(outputBox.Render(successText.Render(m.Output)))
 		} else {
-			b.WriteString(outputBox.Render(m.Output))
+			content.WriteString(outputBox.Render(m.Output))
 		}
 	}
 
-	b.WriteString("\n\n" + subtleDivider + "\n")
-	b.WriteString(hintText.Render("↑/↓ navigate • Enter run • q quit • ESC cancel input") + "\n")
+	content.WriteString("\n\n" + subtleDivider + "\n")
+	content.WriteString(hintText.Render("↑/↓ navigate • Enter run • q quit • ESC cancel input") + "\n")
 
-	return b.String()
+	contentStr := content.String()
+	centered := lipgloss.Place(
+		lipgloss.Width(contentStr),
+		0,
+		lipgloss.Center,
+		lipgloss.Center,
+		contentStr,
+	)
+	return centered
+
 }
