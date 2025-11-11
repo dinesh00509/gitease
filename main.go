@@ -24,19 +24,14 @@ func main() {
 			fmt.Println("Flags:")
 			fmt.Println("  --version, -v   Show version")
 			fmt.Println("  --help, -h      Show this help message")
-			fmt.Println("  --run, -r       Run a Git command")
+			fmt.Println("  --run, -r       Start the interactive CLI")
 			os.Exit(0)
 		}
 		if arg == "--run" || arg == "-r" {
-			if len(os.Args) < 3 {
-				fmt.Println("Error: Missing argument for --run")
-				fmt.Println("Usage: gitease --run <command>")
-				os.Exit(1)
-			}
-			command := os.Args[2]
-			output := internals.RunGit(command)
-			fmt.Println(output)
-			os.Exit(0)
+		} else {
+			fmt.Println("Unknown flag:", arg)
+			fmt.Println("Use --help for usage information")
+			os.Exit(1)
 		}
 	}
 
