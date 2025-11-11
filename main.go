@@ -19,11 +19,12 @@ func main() {
 		}
 		if arg == "--help" || arg == "-h" {
 			fmt.Println("GitEase - Interactive Git Assistant")
-			fmt.Println("Usage: gitease")
+			fmt.Println("Usage: gitease [flags]")
 			fmt.Println("Navigate and manage Git tasks interactively in your terminal.")
 			fmt.Println("Flags:")
 			fmt.Println("  --version, -v   Show version")
 			fmt.Println("  --help, -h      Show this help message")
+			fmt.Println("  --run, -r       Run a Git command")
 			os.Exit(0)
 		}
 		if arg == "--run" || arg == "-r" {
