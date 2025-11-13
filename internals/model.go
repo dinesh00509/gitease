@@ -40,6 +40,10 @@ func InitialModel() Model {
 			{"Pull from other branch", false},
 			{"list all branches", false},
 			{"show the current branch", false},
+			{"check the logs", false},
+			{" check the logs with reflog", false},
+			{"check the logs with oneline and graph", false},
+			{"check the reflogs with oneline and graph", false},
 		},
 		TextInput: ti,
 	}
